@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: raileasy
+  profiles:
+    active: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.hibernate.SQL: info
+

@@ -1,0 +1,43 @@
+# Java / Maven
+/target/
+*.log
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.tmp
+*.bak
+*.swp
+
+# IntelliJ IDEA
+/.idea/
+*.iml
+*.iws
+out/
+
+# VS Code
+.vscode/
+
+# Node
+/node_modules/
+/npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Coverage
+/coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env
