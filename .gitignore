@@ -27,9 +27,6 @@ out/
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
 
 # Coverage
 /coverage/
