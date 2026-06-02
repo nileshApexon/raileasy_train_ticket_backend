@@ -7,10 +7,11 @@ A Spring Boot REST API for train ticket booking with user authentication, schedu
 - **Java 17+**
 - **Spring Boot 3.3.5**
 - **Spring Data JPA with Hibernate**
-- **Spring Security (BCrypt password hashing)**
+- **Spring Security with JWT Authentication**
 - **Flyway Database Migration**
 - **PostgreSQL / H2 (dev)**
 - **SpringDoc OpenAPI (Swagger UI)**
+- **JJWT (JSON Web Token library)**
 
 ## Setup & Running
 
@@ -74,9 +75,11 @@ Response: 201 Created
   "email": "user@example.com",
   "name": "John Doe",
   "isAdmin": false,
-  "token": "uuid"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
+
+**Note:** The `token` field contains a JWT token that must be included in the `Authorization` header for authenticated requests.
 
 #### Login
 ```http
@@ -94,7 +97,7 @@ Response: 200 OK
   "email": "user@example.com",
   "name": "John Doe",
   "isAdmin": false,
-  "token": "uuid"
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
@@ -146,7 +149,6 @@ Response: 200 OK
 #### Get Booked Seats
 ```http
 GET /api/schedules/{scheduleId}/seats?class=AC_3
-X-User-Id: user-uuid (optional for public endpoint)
 
 Response: 200 OK
 {
@@ -163,7 +165,7 @@ Response: 200 OK
 ```http
 POST /api/bookings
 Content-Type: application/json
-X-User-Id: user-uuid
+Authorization: Bearer <jwt-token>
 
 {
   "scheduleId": "uuid",
@@ -192,7 +194,7 @@ Response: 201 Created
 #### Get My Bookings (Authenticated)
 ```http
 GET /api/bookings/mine
-X-User-Id: user-uuid
+Authorization: Bearer <jwt-token>
 
 Response: 200 OK
 [
@@ -208,7 +210,7 @@ Response: 200 OK
 #### Cancel Booking (Authenticated)
 ```http
 PUT /api/bookings/{bookingId}/cancel
-X-User-Id: user-uuid
+Authorization: Bearer <jwt-token>
 
 Response: 200 OK
 {
@@ -224,7 +226,7 @@ Response: 200 OK
 #### Get All Trains (Admin)
 ```http
 GET /api/trains
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 Response: 200 OK
 [
@@ -241,7 +243,7 @@ Response: 200 OK
 ```http
 POST /api/trains
 Content-Type: application/json
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 {
   "trainNumber": "12345",
@@ -256,7 +258,7 @@ Response: 201 Created
 ```http
 PUT /api/trains/{trainId}
 Content-Type: application/json
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 {
   "trainNumber": "12345",
@@ -270,7 +272,7 @@ Response: 200 OK
 #### Delete Train (Admin)
 ```http
 DELETE /api/trains/{trainId}
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 Response: 204 No Content
 ```
@@ -280,7 +282,7 @@ Response: 204 No Content
 #### Get All Schedules (Admin)
 ```http
 GET /api/schedules/admin
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 Response: 200 OK
 [
@@ -305,7 +307,7 @@ Response: 200 OK
 ```http
 POST /api/schedules
 Content-Type: application/json
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 {
   "trainId": "uuid",
@@ -326,7 +328,7 @@ Response: 201 Created
 ```http
 PUT /api/schedules/{scheduleId}
 Content-Type: application/json
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 { ... same fields ... }
 
@@ -336,7 +338,7 @@ Response: 200 OK
 #### Delete Schedule (Admin)
 ```http
 DELETE /api/schedules/{scheduleId}
-X-User-Id: admin-uuid
+Authorization: Bearer <admin-jwt-token>
 
 Response: 204 No Content
 ```
@@ -418,11 +420,11 @@ curl -X POST http://localhost:8080/api/auth/login \
 curl -X GET "http://localhost:8080/api/schedules?from=Chennai%20Central&to=Mumbai%20CSMT&date=2025-10-21"
 ```
 
-#### Create Booking (Replace with real UUIDs)
+#### Create Booking (Replace with real JWT token)
 ```bash
 curl -X POST http://localhost:8080/api/bookings \
   -H "Content-Type: application/json" \
-  -H "X-User-Id: user-uuid" \
+  -H "Authorization: Bearer <your-jwt-token>" \
   -d '{
     "scheduleId": "uuid",
     "travelClass": "AC_3",
@@ -473,6 +475,8 @@ SPRING_PROFILES_ACTIVE=dev|prod
 DB_URL=jdbc:postgresql://host:5432/raileasy
 DB_USERNAME=postgres
 DB_PASSWORD=password
+JWT_SECRET=your-256-bit-secret-key-for-jwt-token-generation
+JWT_EXPIRATION_MS=86400000
 ```
 
 ---
@@ -489,16 +493,19 @@ DB_PASSWORD=password
 ## Security
 
 - Passwords hashed with BCrypt (strength 10)
-- Stateless authentication via X-User-Id header
-- Admin authorization on sensitive endpoints
+- JWT token-based stateless authentication
+- Bearer token in Authorization header for authenticated requests
+- Admin authorization on sensitive endpoints using role-based access control
+- Guest users can search schedules and view seat availability without authentication
 - Input validation on all requests
 - SQL injection prevention via parameterized queries (JPA)
+- CORS configuration for cross-origin requests
 
 ---
 
 ## Future Enhancements
 
-- JWT token-based authentication
+- Refresh token mechanism for JWT
 - Waitlist functionality for fully booked classes
 - Station autocomplete
 - Downloadable ticket PDFs

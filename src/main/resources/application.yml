@@ -16,6 +16,11 @@ spring:
 server:
   port: 8080
 
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:RailEasySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForSecurity}
+  expiration-ms: ${JWT_EXPIRATION_MS:86400000}  # 24 hours
+
 logging:
   level:
     org.hibernate.SQL: info

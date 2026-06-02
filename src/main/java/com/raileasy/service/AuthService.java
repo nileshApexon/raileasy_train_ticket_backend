@@ -1,5 +1,6 @@
 package com.raileasy.service;
 
+import com.raileasy.common.security.JwtService;
 import com.raileasy.domain.User;
 import com.raileasy.dto.auth.AuthLoginRequestDto;
 import com.raileasy.dto.auth.AuthRegisterRequestDto;
@@ -16,10 +17,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -52,8 +55,8 @@ public class AuthService {
     }
 
     private AuthResponseDto toAuthResponse(User user) {
-        // For this foundation milestone, userId is used as an API token in X-User-Id.
-        return new AuthResponseDto(user.getId(), user.getEmail(), user.getName(), user.isAdmin(), user.getId().toString());
+        String jwtToken = jwtService.generateToken(user.getId(), user.getEmail(), user.isAdmin());
+        return new AuthResponseDto(user.getId(), user.getEmail(), user.getName(), user.isAdmin(), jwtToken);
     }
 
     private boolean isPasswordValid(User user, String rawPassword) {
