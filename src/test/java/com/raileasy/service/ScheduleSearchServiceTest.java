@@ -38,8 +38,8 @@ class ScheduleSearchServiceTest {
                 .orElseThrow()
                 .seatsLeft();
 
-        // One confirmed AC_3 booking with two seats in seed data.
-        assertThat(ac3SeatsLeft).isEqualTo(62);
+        // One confirmed AC_3 booking with two seats in seed data; 75 total - 2 booked = 73.
+        assertThat(ac3SeatsLeft).isEqualTo(73);
     }
 }
 
