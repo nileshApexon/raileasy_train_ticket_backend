@@ -25,8 +25,8 @@ class ScheduleSeatMapServiceTest {
                 TravelClass.AC_3
         );
 
-        assertThat(seatMap.totalSeats()).isEqualTo(64);
-        assertThat(seatMap.bookedSeatNumbers()).containsExactly("1A", "1B");
+        assertThat(seatMap.totalSeats()).isEqualTo(75);
+        assertThat(seatMap.bookedSeatNumbers()).containsExactly("B1/1", "B1/2");
     }
 
     @Test
